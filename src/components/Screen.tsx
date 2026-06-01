@@ -1,6 +1,6 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { PropsWithChildren } from 'react';
 import { ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { palette, spacing, typography } from '@/src/theme';
