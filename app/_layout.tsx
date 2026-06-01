@@ -1,56 +1,55 @@
-import { useFonts } from 'expo-font';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/components/useColorScheme';
+import { initializeAds } from '@/src/services/ads';
+import { bootstrapAppServices } from '@/src/services/mockApi';
+import { useSessionStore } from '@/src/store/session';
 
 export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
+    ErrorBoundary
 } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  initialRouteName: 'index',
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
-
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
   useEffect(() => {
-    if (error) throw error;
-  }, [error]);
+    let cleanup: (() => void) | undefined;
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+    void initializeAds();
 
-  if (!loaded) {
-    return null;
-  }
+    void bootstrapAppServices({
+      onAuthUserChanged: (authUser) => {
+        useSessionStore.getState().setAuthUser(authUser);
+      },
+      onUserStateHydrated: (payload) => {
+        useSessionStore.getState().hydrateFromBackend(payload);
+      },
+    }).then((unsubscribe) => {
+      cleanup = unsubscribe;
+    });
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+    return () => {
+      cleanup?.();
+    };
+  }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <>
+      <StatusBar style="light" />
       <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="match/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="fan-room/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="restaurants/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="restaurants/onboard" options={{ title: 'Restaurant Onboarding' }} />
+        <Stack.Screen name="admin" options={{ title: 'CupHub Admin' }} />
       </Stack>
-    </ThemeProvider>
+    </>
   );
 }
