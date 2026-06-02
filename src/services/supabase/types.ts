@@ -11,8 +11,8 @@ export type DbTeamRow = {
 
 export type DbMatchRow = {
   id: string;
-  stage: 'Group Stage';
-  group_code: string;
+  stage: string;
+  group_code: string | null;
   kickoff_utc: string;
   stadium: string;
   city: string;

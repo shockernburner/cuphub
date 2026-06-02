@@ -16,8 +16,8 @@ export type MatchStatus = 'upcoming' | 'live' | 'full-time';
 
 export type Match = {
   id: string;
-  stage: 'Group Stage';
-  groupCode: string;
+  stage: string;
+  groupCode: string | null;
   kickoffUtc: string;
   stadium: string;
   city: string;

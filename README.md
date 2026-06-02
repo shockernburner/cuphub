@@ -126,6 +126,57 @@ What still remains product-side:
 - Live leaderboard scoring jobs
 - Production-ready moderation tooling and policies
 
+## Sportmonks ingestion
+
+CupHub's live World Cup data path is now designed around Sportmonks feeding the existing Supabase tables.
+
+What the current import surface handles:
+
+- Teams
+- Fixtures
+- Match status and score updates
+- Venue name and city
+- Global fan-room creation for imported matches
+
+What still needs dedicated schema before it can be shown end-to-end in the app:
+
+- Squads and players
+- Lineups and in-game events
+- Match statistics
+- Referees and coaches
+
+Server-side variables for the importer:
+
+```bash
+SUPABASE_URL=your-project-url
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+SPORTMONKS_API_TOKEN=your-sportmonks-token
+SPORTMONKS_BASE_URL=https://api.sportmonks.com/v3/football
+SPORTMONKS_FIXTURES_URL=full-world-cup-fixtures-endpoint-with-participants
+SPORTMONKS_TEAMS_URL=full-world-cup-teams-endpoint
+SPORTMONKS_WORLD_CUP_FIXTURES_URL=primary-season-fixtures-url
+SPORTMONKS_WORLD_CUP_TEAMS_URL=primary-season-teams-url
+SPORTMONKS_WORLD_CUP_FIXTURES_URL_FALLBACK=fallback-season-fixtures-url
+SPORTMONKS_WORLD_CUP_TEAMS_URL_FALLBACK=fallback-season-teams-url
+```
+
+Run the importer with:
+
+```bash
+npm run sync:sportmonks
+```
+
+Notes:
+
+- Keep `SUPABASE_SERVICE_ROLE_KEY` server-side only. Do not place it in any `EXPO_PUBLIC_*` variable.
+- The sync script loads `.env` directly via Node's `--env-file`, so World Cup include URLs with semicolons do not need shell escaping when you run `npm run sync:sportmonks`.
+- `SPORTMONKS_FIXTURES_URL` and `SPORTMONKS_TEAMS_URL` are full request URLs so the importer can stay stable even if your chosen Sportmonks filters or includes change.
+- Sportmonks v3 uses semicolons between includes. The importer now appends the required season fixture includes itself, so the env values should be plain season URLs such as `/seasons/26618` and `/seasons/23706`.
+- The importer now prefers `SPORTMONKS_WORLD_CUP_FIXTURES_URL` and `SPORTMONKS_WORLD_CUP_TEAMS_URL`, then retries the configured fallback URLs if the primary season returns empty, forbidden, or missing-access responses.
+- `SPORTMONKS_FIXTURES_URL` must be World Cup-filtered and must return participant/team data for each fixture. The plain `/fixtures` endpoint does not provide enough data for CupHub imports.
+- The current generic `/teams` and `/fixtures` endpoints point at all football data, not just World Cup 2026, so they are only safe once you replace them with tournament-scoped URLs.
+- Knockout matches are now supported because `matches.group_code` is nullable.
+
 ## Compliance notes
 
 - CupHub does not host streams or embed unauthorized feeds.

@@ -41,7 +41,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "eslint . --ext .js,.ts,.tsx",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "sync:sportmonks": "node --env-file=.env ./scripts/sync-sportmonks.mjs"
   },
   "private": true
 }

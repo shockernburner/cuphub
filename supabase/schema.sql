@@ -12,7 +12,7 @@ create table if not exists public.teams (
 create table if not exists public.matches (
   id text primary key,
   stage text not null default 'Group Stage',
-  group_code text not null,
+  group_code text,
   kickoff_utc timestamptz not null,
   stadium text not null,
   city text not null,
@@ -138,6 +138,9 @@ create policy if not exists "public read matches" on public.matches for select u
 create policy if not exists "public read watch links" on public.watch_links for select using (true);
 create policy if not exists "public read fan rooms" on public.fan_rooms for select using (true);
 create policy if not exists "public read leaderboard" on public.leaderboard_entries for select using (true);
+
+alter table if exists public.matches
+  alter column group_code drop not null;
 create policy if not exists "public read restaurants" on public.restaurants for select using (true);
 create policy if not exists "public read restaurant matches" on public.restaurant_matches for select using (true);
 create policy if not exists "public read chat messages" on public.chat_messages for select using (true);

@@ -17,12 +17,13 @@ export function MatchCard({ match, countryCode, onOpen, onJoinRoom }: MatchCardP
   const appServices = useAppServices();
   const watchLink = appServices.matches.getWatchLinksForMatchAndCountry(match.id, countryCode)[0];
   const canPredict = match.status === 'upcoming';
+  const competitionMeta = match.groupCode ?? match.stage;
 
   return (
     <Pressable style={styles.card} onPress={onOpen}>
       <View style={styles.topRow}>
         <View>
-          <Text style={styles.meta}>{match.groupCode} • {match.stadium}</Text>
+          <Text style={styles.meta}>{competitionMeta} • {match.stadium}</Text>
           <Text style={styles.meta}>{formatKickoffLocal(match.kickoffUtc)} local • {matchCountdown(match.kickoffUtc)}</Text>
         </View>
         <StatusPill status={match.status} />
